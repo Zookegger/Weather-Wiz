@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <title>Weather App</title>
+        <script defer src="scripts.js"></script>
+    </head>
+    <body>
+        <h1>Weather App</h1>
+        <form id="location">
+            <div class="container">
+                <input type="text" id="cityInput" placeholder="Enter city name to get weather data" required>
+                <button type="submit"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Magnifying_glass_icon.svg"></button>
+            </div>
+            <div>
+                <label>
+                    <p><input type="checkbox" id="advance" unchecked><span class="spacing">Advance Info</span></p>
+                </label>
+            </div>
+        </form>
+        <div id="weather"></div>
+    </body>
+</html>
