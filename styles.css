@@ -5,7 +5,7 @@
 }
 
 body {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     margin: 0;
     display: flex;
@@ -13,16 +13,16 @@ body {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .container {
     border: 2px solid black;
     display: flex;
     flex: 1;
-    height: 5vh;
-    margin: 20px 0;
-    min-width: fit-content;
+    height: 55px;
+    margin: 20px;
+    min-width: 50px;
     border-radius: 5px;
 }
 
@@ -30,6 +30,7 @@ body {
     width: 350px;
     padding: 10px 10px;
     font-size: 17px;
+    flex-grow: 1;
 }
 
 #cityInput, button[type="submit"] {
@@ -40,15 +41,22 @@ body {
     color: #888;
 }
 
+.checkbox {
+   height: 40px;
+}
+
+.checkbox label {
+   line-height: 40px;
+   vertical-align: middle;
+}
 
 span.spacing {
     margin-left: 10px;
 }
 
 input[type="checkbox"] {
-    transform: scale(1.5);
-    height: 15px;
-    width: 15px;
+    zoom: 1.5;    
+    margin-left: 20px;
 }
 
 button[type="submit"] > img{
