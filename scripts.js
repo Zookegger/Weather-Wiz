@@ -138,7 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get location data
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const city = document.getElementById('cityInput').value;
+        let city = document.getElementById('cityInput').value;
+        // Trim trailing spaces
+        city = city.trim();
 
         // Get weather info of that location
         if (city){
