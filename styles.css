@@ -5,117 +5,131 @@
 }
 
 body {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
     display: flex;
-    /*flex-direction: column;*/
-    align-items: center;
-    justify-content: center;
-    overflow: scroll;
+    flex-direction: column;
+    overflow: hidden;
     flex-wrap: wrap;
+    background-image: url(img/sky-blue.jpg);
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: exclusion;
+    background-color: rgba(255, 255, 255, 0.144);
 }
 
-.container {
-    border: 2px solid black;
+.header {
+    background-color: #0c01a8;
     display: flex;
-    flex: 1;
+    text-align: center;
+    font-size: 30px;
+    color: white;
+    padding-left: 8px;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 40px 20px;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid black;
     height: 55px;
-    margin: 20px;
-    min-width: 50px;
     border-radius: 5px;
+    background-color: #FFFFFF;
 }
 
 #cityInput {
-    width: 350px;
+    width: 90%;
     padding: 10px 10px;
+    margin-left: 5px;
     font-size: 17px;
-    flex-grow: 1;
 }
 
-#cityInput, button[type="submit"] {
+#cityInput:focus {
+    outline: 0;
+}
+
+#submit, #cityInput {
     border: 0;
+}
+
+#submit {
+    height: 50px;
+    padding: 10px;
+}
+
+#submit:hover {
+    background-color: #888888bd;
+}
+
+#submit:active{
+    background-color: #2e2e2ed2;
 }
 
 #cityInput::placeholder {
     color: #888;
 }
 
-.checkbox {
-   height: 40px;
-}
-
-.checkbox label {
-   line-height: 40px;
-   vertical-align: middle;
-}
-
-span.spacing {
-    margin-left: 10px;
-}
-
-input[type="checkbox"] {
-    zoom: 1.5;    
-    margin-left: 20px;
-}
-
-button[type="submit"] > img{
-    transform: scale(1.5);
-    width: 20px;
-}
-
-button[type="submit"] {
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 2px solid black;
-}
-
-button[type="submit"]:hover {
-    background-color: #888888bd;
-}
-
-button[type="submit"]:active{
-    background-color: #515050e5;
-}
-
 #weather span.bold {
     font-weight: bold;
 }
 
+
+span.bold-spacing {
+    font-weight: bold;
+    font-size: 16px;
+}
+
 .bordered {
+    background-color: rgba(0, 0, 0, 0.5);
     font-size: 20px;
     border: 2px solid black;
     padding: 15px;
-    margin: 30px;
-}
-
-h1 {
-    text-align: center;
-    font-size: 50px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 #switches {
-    position: relative;
-    height: 120px;
-    width: 200px;
-    margin: 0 auto;
     display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+    margin: 0 auto;
     flex-wrap: wrap;
-    flex: 1;
+    color: white;
+}
+
+.advance-container, .temperature-container {
+    display: flex;
+    align-items: center;
     /* border: 2px solid black; */
 }
-#switches p {
-    margin: 10px;
-    padding-top: 7px;
+
+.advance-container {
+    flex-direction: row;
+    padding-right: 5px;
+}
+
+.temperature-container {
+    flex-direction: row;
+}
+
+.advance-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .switch {
     position: relative;
-    display: flex;
     width: 60px;
     height: 34px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px;
 }
 
 .switch input {

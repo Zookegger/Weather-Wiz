@@ -2,35 +2,14 @@ let cweatherData = null;
 let fweatherData = null;
 const apikey = '7effdcce5270c1da9c3d3d29c2afb106';
 
-/*
-// function getCityCoordinate (city) {
 
-// }
-
-// async function getFiveDayThreeHourData() {
-//     const baseURL = 'https://api.openweathermap.org/data/2.5/forecast';
-//     const url = `${baseURL}?lat=${lat}&lon=${lon}&appid=${apikey}`;
-
-//     try {
-//         const response = await fetch(url);
-//         if (!response.ok) 
-//             throw new Error('Network response was not ok' + response.statusText);
-        
-//         const data = await response.json();
-//         console.log('Weather Data: ', data);
-
-//         weatherData = data;
-
-//     } catch (error) {
-//         console.error('Fetch Error:', error);
-//         document.getElementById('weather').innerHTML = '<p>Error fetching weather data</p>';
-//     }
-// }
-*/
+const form = document.getElementById('location');
+const tempMode = document.getElementById('switchButton');
+const displayMode = document.getElementById('displayMode');
 
 async function getWeatherData(city) {
     const baseURL = 'https://api.openweathermap.org/data/2.5/weather';
-    const fahrenheitUrl = `${baseURL}?q=${city}&appid=${apikey}`;
+    const fahrenheitUrl = `${baseURL}?q=${city}&appid=${apikey}&units=imperial`;
     const celsiusUrl = `${baseURL}?q=${city}&appid=${apikey}&units=metric`;
 
     try {
@@ -58,8 +37,7 @@ async function getWeatherData(city) {
     }
 }
 
-
-function normalMode (data, capitalizedDescription) {
+function displayCelsiusNormalMode (data, capitalizedDescription) {
     document.getElementById('weather').innerHTML = `
         <h2>Weather in ${data.name}</h2>
         <p>Temperatures: ${data.main.temp}°C</p>
@@ -68,7 +46,7 @@ function normalMode (data, capitalizedDescription) {
     `;
 }
 
-function fahrenheitNormalMode(data, capitalizedDescription) {
+function displayFahrenheitNormalMode(data, capitalizedDescription) {
     document.getElementById('weather').innerHTML = `
         <h2>Weather in ${data.name}</h2>
         <p>Temperatures: ${data.main.temp}°F</p>
@@ -77,7 +55,7 @@ function fahrenheitNormalMode(data, capitalizedDescription) {
     `;
 }
 
-function advanceMode(data, capitalizedDescription) {
+function displayCelsiusAdvanceMode(data, capitalizedDescription) {
     document.getElementById('weather').innerHTML = `
         <h2>Weather in ${data.name}</h2>
         <p><span class="bold">Temperatures:</span> ${data.main.temp}°C</p>
@@ -92,7 +70,7 @@ function advanceMode(data, capitalizedDescription) {
     `;
 }
 
-function fahrenheitAdvanceMode(data, capitalizedDescription) {
+function displayFahrenheitAdvanceMode(data, capitalizedDescription) {
     document.getElementById('weather').innerHTML = `
         <h2>Weather in ${data.name}</h2>
         <p><span class="bold">Temperatures:</span> ${data.main.temp}°F</p>
@@ -103,59 +81,55 @@ function fahrenheitAdvanceMode(data, capitalizedDescription) {
         <p>Humidity: ${data.main.pressure} hPa</p>
         <p>Pressure: ${data.main.humidity}%</p>
         <p>Visibility: ~${(data.visibility / 1000).toFixed(0)} km </p>
-        <p>Wind Speed: ${data.wind.speed} m/s</p>
+        <p>Wind Speed: ${data.wind.speed} mph</p>
     `;
 }
 
 function renderWeatherData(fdata, cdata) {
-    const isAdvance = document.getElementById('advance').checked;
     const celsiusWeatherDescription = cdata.weather[0].description;
     const fahrenheitWeatherDescription = fdata.weather[0].description;
     const celsiusCapitalizedDescription = celsiusWeatherDescription.charAt(0).toUpperCase() + celsiusWeatherDescription.slice(1);
     const fahrenheitCapitalizedDescription = fahrenheitWeatherDescription.charAt(0).toUpperCase() + fahrenheitWeatherDescription.slice(1);
-    const isFahrenheit = document.getElementById('fahrenheit').checked;
 
-    if (!isAdvance){
-        if (isFahrenheit) 
-            fahrenheitNormalMode(fdata, fahrenheitCapitalizedDescription);
+    console.log('Display mode: ' + displayMode.checked);
+    console.log('Temperature mode: ' + tempMode.checked);
+    if (!displayMode.checked){
+        if (tempMode.checked) 
+            displayFahrenheitNormalMode(fdata, fahrenheitCapitalizedDescription);
         else 
-            normalMode(cdata, celsiusCapitalizedDescription);  
+            displayCelsiusNormalMode(cdata, celsiusCapitalizedDescription);  
     }else{
-        if (isFahrenheit) 
-            fahrenheitAdvanceMode(fdata, fahrenheitCapitalizedDescription); 
+        if (tempMode.checked) 
+            displayFahrenheitAdvanceMode(fdata, fahrenheitCapitalizedDescription); 
         else 
-            advanceMode(cdata, celsiusCapitalizedDescription);
+            displayCelsiusAdvanceMode(cdata, celsiusCapitalizedDescription);
     }
 
     document.getElementById('weather').classList.add('bordered');
+    document.getElementById('weather').classList.add('weather');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('location');
-    const advanceMode = document.getElementById('advance');
-    const fahrenheitMode = document.getElementById('fahrenheit');
-
     // Get location data
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        let city = document.getElementById('cityInput').value;
         // Trim trailing spaces
-        city = city.trim();
-
+        let city = (document.getElementById('cityInput').value).trim();
+        
         // Get weather info of that location
         if (city){
             getWeatherData(city);
         }
     });
-
-    fahrenheitMode.addEventListener('change', () => {
+    // Update temperature mode if it has been switched
+    tempMode.addEventListener('change', () => {
         if (cweatherData && fweatherData){
             renderWeatherData(fweatherData, cweatherData);
         }
     });
     
-    // Change to advance info mode
-    advanceMode.addEventListener('change', () => {
+    // Update display mode if it has been switched
+    displayMode.addEventListener('change', () => {
         if (cweatherData && fweatherData){
             renderWeatherData(fweatherData, cweatherData);
         }

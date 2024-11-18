@@ -8,30 +8,35 @@
         <script defer src="scripts.js"></script>
     </head>
     <body>
-        <h1>Weather Wiz</h1>
-        <form id="location">
-            <div class="container">
-                <input type="text" id="cityInput" placeholder="Enter city name to get weather data" required>
-                <button type="submit"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Magnifying_glass_icon.svg"></button>
-            </div>
-            <div class="checkbox">
-                <!--<label>
-                    <p><input type="checkbox" id="advance" unchecked><span class="spacing">Advance Info</span></p>
-                    </label>--!>
-            <div id="switches" class="hidden"> 
-                <label class="switch">
-                    <input type="checkbox" id="advance" unchecked><span class="slider round"></span>
+        <div class="header">
+            <h1>Weather Wiz</h1>
+        </div>
 
-                </label>
-                <p><span class="spacing">Advance Info</span></p>
-                <!-- <img src="https://cdn-icons-png.flaticon.com/128/3108/3108499.png" loading="lazy" alt="Celsius icon" title="Celsius icon" width="64" height="64"> -->
-                <label class="switch">
-                    <input type="checkbox" id="fahrenheit" unchecked><span class="slider round"></span>
-                </label>
-                <p><span class="spacing">Fahrenheit</span></p>
-                <!-- <img src="https://cdn-icons-png.flaticon.com/128/3108/3108500.png" loading="lazy" alt="Farenheit icon" title="Farenheit icon" width="64" height="64"> -->
-            </div>
-        </form>
-        <div id="weather"></div>
+        <div class="body">
+            <form id="location">
+                <div class="search-bar">
+                    <input type="text" id="cityInput" placeholder="Enter city name to get weather data" required>
+                    <button type="submit" name="submit" id="submit"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Magnifying_glass_icon.svg" style="height: 30px; width: 30px"></button>
+                </div>
+                <div id="switches" class="hidden"> 
+                    <div class="advance-container">
+                        <label class="switch">
+                            <input type="checkbox" id="displayMode" unchecked><span class="slider round"></span>
+                            
+                        </label>
+                        <div class="advance-title"><span class="bold-spacing">Advance Info</span></div>
+                    </div>
+
+                    <div class="temperature-container">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3108/3108499.png" loading="lazy" alt="Celsius icon" title="Celsius icon" width="64" height="64" style="filter: invert(1)">
+                        <label class="switch">
+                            <input type="checkbox" id="switchButton" unchecked><span class="slider round"></span>
+                        </label>
+                        <img src="https://cdn-icons-png.flaticon.com/128/3108/3108500.png" loading="lazy" alt="Farenheit icon" title="Farenheit icon" width="64" height="64" style="filter: invert(1)">
+                    </div>
+                </div>
+            </form>
+            <div id="weather"></div>
+        </div>
     </body>
 </html>
