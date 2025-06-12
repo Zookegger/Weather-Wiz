@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Weather Wiz - Modern Weather App</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header class="bg-primary">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a href="/" class="navbar-brand text-white fw-bold fs-4">Weather Wiz</a>
+            </div>
+        </nav>
+    </header>
+    <main class="container flex-fill bg-body-secondary my-3">
+        <form id="get-weather" class="card" method="post">
+            <div class="card-header fw-semibold fs-5">
+                Current Weather Lookup
+            </div>
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="form-floating flex-fill ">
+                        <input type="text" class="form-control rounded-start-4 rounded-end-0" name="city" placeholder=""
+                            id="city">
+                        <label for="city" class="form-label">Location name</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg rounded-start-0 rounded-end-4">Search<i
+                            class="fa fa-search ms-1"></i></button>
+                </div>
+            </div>
+        </form>
+        <div class="card my-3 d-none" id="content">
+
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <p>&copy; 2025 Weather Wiz. All rights reserved.</p>
+                    <p><small>Powered by OpenWeather API</small></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="/js/site.js"></script>
+
+
+
+
+    <script>
+        /* 
+            document.querySelector('#get-weather').addEventListener('submit', async function () {
+
+            }); 
+        */
+
+        $('#get-weather').on("submit", async function (e) {
+            e.preventDefault();
+
+            $('#content').empty();
+
+            let city = $('#city').val();
+            if (!city) {
+                return;
+            }
+
+            $.ajax({
+                url: window.location.origin + '/api/weather/' + city.toLowerCase().trim(),
+
+                success: function (response) {
+                    const data = response.data;
+
+                    let content = null;
+                    if (!data) {
+                        content = `<span class=''>No data found</span>`;
+                    } else {
+                        let temperature = data.temperature;
+                        let tempIcon = getTemperatureRating(temperature);
+
+                        content = `
+                           <div class="card-header fw-bold h2 bg-secondary-subtle">${data.city}</div>
+                            <div class="card-body fs-4">
+                                <div class='col-6'>
+                                    <div class="row mb-3">
+                                        <span class=''>Description: ${data.description}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class=''>${tempIcon}Temperature: ${data.temperature}°C</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class=''><i class="bi bi-moisture me-2" style="min-width: 24px;"></i>Humidity: ${data.humidity}%</span>
+                                    </div>
+                                </div>
+                                <div class='col-6'>
+                                    <div class="row">
+                                        <span class=''><i class="fa-solid fa-wind"></i> Wind speed: ${data.windSpeed} km/h</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class=''>Last checked: ${new Date(data.timestamp).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    $('#content').removeClass('d-none');
+                    $('#content').addClass('d-flex');
+
+                    $('#content').append(content);
+                    console.log(data);
+                },
+
+                // xhr – the full XMLHttpRequest object (can inspect responseText, status, etc.)
+                // status – a string describing the type of error ("timeout", "error", "abort", "parsererror")
+                // errorThrown – the textual portion of the HTTP status, like "Not Found" or the exception message
+                error: function (xhr, status, err) {
+                    let message = 'Ab unexpected error occurred.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            message = response.message;
+                        }
+                    } catch (error) {
+                        message = err;
+                    }
+
+                    let errorHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    $('#content').append(errorHtml);
+                    console.error("AJAX error:", message);
+                },
+
+            });
+        });
+    </script>
+
+</body>
+
+</html>

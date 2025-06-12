@@ -1,0 +1,36 @@
+{
+	"name": "weather-wiz-enhanced",
+	"version": "1.0.0",
+	"description": "Enhanced weather forecast app",
+	"keywords": [
+		"Weather",
+		"forecast"
+	],
+	"homepage": "https://github.com/Zookegger/Weather-Wiz/tree/enhanced-weather-wiz#readme",
+	"bugs": {
+		"url": "https://github.com/Zookegger/Weather-Wiz/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Zookegger/Weather-Wiz.git#enhanced-weather-wiz"
+	},
+	"license": "ISC",
+	"author": "Nguyen Duc Trung",
+	"type": "commonjs",
+	"main": "index.js",
+	"scripts": {
+		"start": "node src/app.js",
+		"dev": "nodemon src/app.js",
+		"test": "jest"
+	},
+	"dependencies": {
+		"axios": "^1.9.0",
+		"dotenv": "^16.5.0",
+    	"cors": "^2.8.5",
+		"express": "^5.1.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.10",
+    	"jest": "^29.7.0"
+	}
+}
