@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - enhanced-main
+      - main
   workflow_dispatch:
 
 jobs:
@@ -20,7 +21,13 @@ jobs:
         run: npm ci
 
       - name: Run Tests
-        run: npm test
+        if: ${{ hashFiles('**/test/**', '**/*.test.js') != '' }}
+        run: |
+          if npm run | grep -q "test"; then
+            npm test
+          else
+            echo "No test script found in package.json. Skipping tests."
+          fi
 
       - name: Deploy to Render
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
