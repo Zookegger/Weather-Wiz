@@ -11,6 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install dockerimage
+        run: docker build
       
       - name: Install Dependencies
         run: npm ci
