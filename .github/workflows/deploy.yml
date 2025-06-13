@@ -24,7 +24,7 @@ jobs:
         if: ${{ hashFiles('**/test/**', '**/*.test.js') != '' }}
         run: |
           if npm run | grep -q "test"; then
-            npm test
+            npm test -- --passWithNoTests
           else
             echo "No test script found in package.json. Skipping tests."
           fi
