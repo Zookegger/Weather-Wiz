@@ -58,12 +58,12 @@ class WeatherService {
         cod:         // Response code (200 means OK)
     */
    
-    async getCurrentWeather(city) {
+    async getCurrentWeather(city, units = 'metric') {
         try {
             // Check cache first
-            const cached = await cacheService.get(`weather:${city}`);
+            const cached = await cacheService.get(`weather:${city}-metric:${units}`);
             if (cached) {
-                logger.info(`Cached hit for ${city}`);
+                // logger.info(`Cached hit for ${city}`);
                 return cached;
             }
             
@@ -72,7 +72,7 @@ class WeatherService {
                 params: {
                     q: city,
                     appid: this.apiKey,
-                    units: 'metric'
+                    units: units
                 }
             });
 
@@ -81,7 +81,7 @@ class WeatherService {
                 throw new Error(`Failed to fetch weather data: ${response.statusText}`);
             }
 
-            logger.info('Data: ', response.data);
+            // logger.info('Data: ', response.data);
 
             const weatherData = new Weather({
                 city: response.data.name,
@@ -98,8 +98,8 @@ class WeatherService {
             });
             
             // Cache for 10 minutes
-            cacheService.set(`weather:${city}`, weatherData, 600);
-            logger.info(`Weather data fetched for ${city}`);
+            cacheService.set(`weather:${city}-metric:${units}`, weatherData, 600);
+            // logger.info(`Weather data fetched for ${city}`);
             return weatherData;
         } catch (error) {
             logger.error(`Error fetching weather for ${city}:`, error.message);
@@ -147,7 +147,7 @@ class WeatherService {
             // Get cached data
             const cached = cacheService.get(`forecast:${city}:${days}`);
             if (cached) {
-                logger.info(`Cached hit for ${city}:${days}`);
+                // logger.info(`Cached hit for ${city}:${days}`);
                 return cached;
             } 
             
@@ -174,7 +174,7 @@ class WeatherService {
             }));
 
             cacheService.set(`forecast:${city}:${days}`, forecast, 1800); // 30 min cache
-            logger.info(`Weather forecast fetched for ${city} within ${days} days`);
+            // logger.info(`Weather forecast fetched for ${city} within ${days} days`);
             return forecast;
         } catch (error) {
             logger.error(`Error fetching forecast for ${city}:`, error.message);

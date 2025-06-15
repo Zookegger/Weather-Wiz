@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 class WeatherController {
     async getCurrentWeather(req, res, next) {
         try {
-            const { city } = req.params;
+            const { city, units } = req.params;
 
             if (!city) {
                 return res.status(400).json({
@@ -13,7 +13,9 @@ class WeatherController {
                 });
             }
 
-            const weather = await weatherService.getCurrentWeather(city);
+            if (units === 'undefined' || units == null) { units = 'metric' }
+
+            const weather = await weatherService.getCurrentWeather(city, units);
 
             res.json({
                 success: true,

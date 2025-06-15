@@ -2,3 +2,23 @@ html {
     min-height: 100vh;
     min-width: 100vw;
 }
+
+.toggle-on {
+    font-weight: 600;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.toggle-off {
+    font-weight: 600;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.toggle-handle {
+    background-color: #c4c4c4;
+}
+
+.toggle-handle:hover {
+    background-color: #808080;
+}
