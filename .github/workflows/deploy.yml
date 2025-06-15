@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
       - name: Install dockerimage
         run: docker build .
@@ -29,5 +31,11 @@ jobs:
             echo "No test script found in package.json. Skipping tests."
           fi
 
-      - name: Deploy to Render
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Trigger Render Deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d '{"branch": "${{ github.ref_name }}", "sha": "${{ github.sha }}"}' \
+          $RENDER_DEPLOY_HOOK
