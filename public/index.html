@@ -20,24 +20,26 @@
             </div>
         </nav>
     </header>
-    <main class="container flex-fill bg-body-secondary my-3">
-        <form id="get-weather" class="card" method="post">
+    <main class="container flex-fill bg-body-secondary my-3 d-flex justify-content-center align-items-center flex-column w-75-md">
+        <form id="get-weather" class="card w-75 shadow-lg" method="post">
             <div class="card-header fw-semibold fs-5">
                 Current Weather Lookup
             </div>
             <div class="card-body">
-                <div class="d-flex">
+                <div class="d-flex justify-content-center align-items-center">
                     <div class="form-floating flex-fill h-100">
                         <input type="text" class="form-control h-100 rounded-start-4 rounded-end-0" name="city" placeholder=""
                             id="city">
                         <label for="city" class="form-label">Location name</label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg rounded-start-0 rounded-end-4">Search<i
-                            class="fa fa-search ms-1"></i></button>
+                    <button type="submit" class="btn btn-primary btn-lg rounded-start-0 rounded-end-4 h-100">
+                        Search
+                        <i class="fa fa-search ms-1"></i>
+                    </button>
                 </div>
             </div>
         </form>
-        <div class="card my-3 d-none" id="content">
+        <div class="card my-3 d-none w-75" id="content">
 
         </div>
     </main>
@@ -49,6 +51,11 @@
                     <p><small>Powered by OpenWeather API</small></p>
                 </div>
             </div>
+            <div class="row">
+                <div class="map-container">
+                    <div id="map" class="w-100 h-100" style="height: 300px;"></div>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -57,35 +64,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-    <script src="/js/site.js"></script>
-
-
-
-
     <script>
-        /* 
-            document.querySelector('#get-weather').addEventListener('submit', async function () {
-
-            }); 
-        */
-
         $('#get-weather').on("submit", async function (e) {
             e.preventDefault();
 
             $('#content').empty();
 
-            let city = $('#city').val();
+            let city = $('#city').val().toLowerCase().trim();
             if (!city) {
                 return;
             }
 
             $.ajax({
-                url: window.location.origin + '/api/weather/' + city.toLowerCase().trim(),
+                url: window.location.origin + '/api/weather/' + encodeURI(city.normalize('NFD').replace(/[\u0300-\u036f]/g, '')),
 
                 success: function (response) {
                     const data = response.data;
@@ -100,7 +94,7 @@
                         content = `
                            <div class="card-header fw-bold h2 bg-secondary-subtle">${data.city}</div>
                             <div class="card-body fs-4">
-                                <div class='col-6'>
+                                <div class='col-12'>
                                     <div class="row mb-3">
                                         <span class=''>Description: ${data.description}</span>
                                     </div>
@@ -110,8 +104,6 @@
                                     <div class="row">
                                         <span class=''><i class="bi bi-moisture me-2" style="min-width: 24px;"></i>Humidity: ${data.humidity}%</span>
                                     </div>
-                                </div>
-                                <div class='col-6'>
                                     <div class="row">
                                         <span class=''><i class="fa-solid fa-wind"></i> Wind speed: ${data.windSpeed} km/h</span>
                                     </div>
@@ -157,7 +149,6 @@
             });
         });
     </script>
-
 </body>
 
 </html>
