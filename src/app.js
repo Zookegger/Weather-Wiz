@@ -11,6 +11,7 @@ const weatherRoutes = require("./routes/weatherRoutes");
 const errorHandler = require("./utils/errorHandler");
 const logger = require("./utils/logger");
 const config = require("./config");
+const { slugify } = require('transliteration');
 
 // Init express
 const app = express();
@@ -19,6 +20,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
+app.use((req, res, next) => {
+    if (req.url) {
+        // Step 1: Decode URL encoded input
+        req.url = decodeURIComponent(req.url);
+
+        // Step 2: Normalize URL
+        req.url = req.url.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        // Step 3: Sanitize URL
+        req.url = slugify(req.url, { 
+            lowercase: false, 
+            separator: '%20',
+            allowedChars: 'a-zA-Z0-9-._~!$&\'()*+,;=:@/'
+        });
+    } 
+    next();
+});
 
 // Routes
 app.use("/api", weatherRoutes);
