@@ -28,6 +28,7 @@ yarn-error.log*
 Thumbs.db
 
 # Copilot promt settings
+.github/instructions/copilot-codeGeneration-instructions.md.instructions.md
 copilot-codeGeneration-instructions.md
 
 # Misc
@@ -36,3 +37,4 @@ copilot-codeGeneration-instructions.md
 
 # Test
 coverage
+
