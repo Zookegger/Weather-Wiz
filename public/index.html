@@ -13,6 +13,10 @@
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/leaflet/dist/leaflet.css">
+
+    <script src="/leaflet/dist/leaflet.js"></script>
+    <script src="/js/map.js"></script>
     <title>Weather Wiz - Modern Weather App</title>
 </head>
 
@@ -25,7 +29,17 @@
         </nav>
     </header>
     <main class="container flex-fill my-3 d-flex justify-content-center align-items-center flex-column w-75-md">
+        <div class="card">
+            <div class="card-header">Map</div>
+
+            <div class="card-body map-container">
+                <div id="map" class="w-100 h-100" style="min-height: 300px; min-width: 300px;">
+
+                </div>
+            </div>
+        </div>
         <form id="get-weather" class="card w-75 shadow-lg" method="post">
+
             <div class="card-header fw-semibold fs-5">
                 <div class="d-flex justify-content-between align-items-center">
                     <span>Weather Lookup</span>
@@ -53,11 +67,6 @@
         </div>
 
         <div class="card my-3 d-none w-75 mt-5 shadow" id="content">
-        </div>
-        <div class="row">
-            <div class="map-container">
-                <div id="map" class="w-100 h-100" style="height: 300px;"></div>
-            </div>
         </div>
     </main>
     <footer class="bg-primary">
@@ -94,239 +103,23 @@
 
     <script>
         $(document).ready(function () {
+            initializeMap();
+            setMarker();
 
-        });
-
-        const iconUrl = `https://openweathermap.org/img/wn`;
-        const iconUrlEnd = `@2x.png`;
-        const loading = `
-            <div class="spinner-border text-center" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        `
-
-        $('#get-weather').on("submit", async function (e) {
-            e.preventDefault();
-
-            $('#content').removeClass('d-flex');
-            $('#content').addClass('d-none');
-
-            $('#content').empty();
-            $('#loading').toggleClass('d-none');
-
-            // True = Metric
-            // False = Imperial
-            let units = $('#units').prop('checked') ? 'Metric' : 'Imperial';
-
-            console.log(units);
-
-            let city = $('#city').val().toLowerCase().trim();
-            if (!city) {
-                $('#city').
+            $('#get-weather').on("submit", async function (e) {
+                e.preventDefault();
+                
+                const weatherApp = new Weather();
+                
+                let city = $("#city").val().toLowerCase().trim();
+                if (!city) {
+                    // Set the tooltip attribute using the proper jQuery method
+                    $("#city").attr("title", 'Please enter a location name!');
                     return;
-            }
+                }
 
-            try {
-                $.ajax({
-                    url: window.location.origin + '/api/weather/' + encodeURI(city.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + '/' + encodeURI(units)),
-
-                    success: function (response) {
-                        const data = response.data;
-
-                        let content = null;
-                        if (!data) {
-                            content = `<span class=''>No data found</span>`;
-                        } else {
-                            let temperature = data.temperature;
-                            let tempIcon = getTemperatureRating(temperature);
-                            let description = data.description;
-
-                            let metricContent = `
-                                <div class="card-header fw-bold h2 bg-secondary-subtle d-flex align-items-center justify-content-between">
-                                    <span>${data.city}</span>
-                                    <small class="text-muted fs-6">Last updated: ${new Date(data.timestamp).toLocaleString()}</small>
-                                </div>
-                                <div class="card-body">
-                                    <div class='row justify-content-arround mx-auto'>
-                                        <div class='col-6 d-flex justify-content-center align-items-center flex-column'>
-                                            <div class="display-4 fw-bold mb-2">${tempIcon} ${data.temperature}°C</div>
-                                            <div class="fs-5 text-muted">Feels like ${data.feels_like}°C</div>
-                                        </div>
-                                        <div class='col-6 justify-content-center text-center rounded-4 p-2' 
-                                        style='
-                                            background: rgba(217, 217, 217, 0.55);
-                                            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                            backdrop-filter: blur(15.2px);
-                                            -webkit-backdrop-filter: blur(15.2px);
-                                            border: 1px solid rgba(217, 217, 217, 0.3);
-                                        '>
-                                            <img src='${iconUrl}/${data.icon}${iconUrlEnd}' 
-                                                width=120px height=120px 
-                                                class="drop-shadow img-fluid"
-                                                alt="weather icon">
-                                            <div class="fs-3 fw-semibold mt-2 text-dark">
-                                                ${description}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row g-4 mt-2">
-                                        <div class="col-md-6 col-12">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="bi bi-moisture fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Humidity</div>
-                                                    <div class="fs-4 fw-semibold">${data.humidity}%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-12">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="fa-solid fa-wind fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Wind Speed</div>
-                                                    <div class="fs-4 fw-semibold">${data.windSpeed} m/s</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
-                                        <div class="col">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="bi bi-moisture fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Pressure</div>
-                                                    <div class="fs-4 fw-semibold">${data.pressure}hPa</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="fa-solid fa-wind fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Wind Direction</div>
-                                                    <div class="fs-4 fw-semibold">${data.windDeg}°</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                            let imperialContent = `
-                                <div class="card-header fw-bold h2 bg-secondary-subtle d-flex align-items-center justify-content-between">
-                                    <span>${data.city}</span>
-                                    <small class="text-muted fs-6">Last updated: ${new Date(data.timestamp).toLocaleString()}</small>
-                                </div>
-                                <div class="card-body">
-                                    <div class='row justify-content-arround mx-auto'>
-                                        <div class='col-6 d-flex justify-content-center align-items-center flex-column'>
-                                            <div class="display-4 fw-bold mb-2">${tempIcon} ${data.temperature}°F</div>
-                                            <div class="fs-5 text-muted">Feels like ${data.feels_like}°F</div>
-                                        </div>
-                                        <div class='col-6 justify-content-center text-center rounded-4 p-2' 
-                                        style='
-                                            background: rgba(217, 217, 217, 0.55);
-                                            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                            backdrop-filter: blur(15.2px);
-                                            -webkit-backdrop-filter: blur(15.2px);
-                                            border: 1px solid rgba(217, 217, 217, 0.3);
-                                        '>
-                                            <img src='${iconUrl}/${data.icon}${iconUrlEnd}' 
-                                                width=120px height=120px 
-                                                class="drop-shadow img-fluid"
-                                                alt="weather icon">
-                                            <div class="fs-3 fw-semibold mt-2 text-dark">
-                                                ${description}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row g-4 mt-2">
-                                        <div class="col-md-6 col-12">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="bi bi-moisture fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Humidity</div>
-                                                    <div class="fs-4 fw-semibold">${data.humidity}%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-12">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="fa-solid fa-wind fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Wind Speed</div>
-                                                    <div class="fs-4 fw-semibold">${data.windSpeed} mph</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
-                                        <div class="col">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="bi bi-moisture fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Pressure</div>
-                                                    <div class="fs-4 fw-semibold">${data.pressure}hPa</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="p-3 bg-light rounded-3 d-flex align-items-center">
-                                                <i class="fa-solid fa-wind fs-3 me-3 text-primary"></i>
-                                                <div>
-                                                    <div class="text-muted">Wind Direction</div>
-                                                    <div class="fs-4 fw-semibold">${data.windDeg}°</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-
-                            description = description.split('. ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('. ');
-                            content = ($('#units').prop('checked')) ? metricContent : imperialContent;
-                        }
-
-                        $('#content').append(content);
-
-                        console.log(data);
-                    },
-
-                    // xhr – the full XMLHttpRequest object (can inspect responseText, status, etc.)
-                    // status – a string describing the type of error ("timeout", "error", "abort", "parsererror")
-                    // errorThrown – the textual portion of the HTTP status, like "Not Found" or the exception message
-                    error: function (xhr, status, err) {
-                        let message = 'Ab unexpected error occurred.';
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            if (response.message) {
-                                message = response.message;
-                            }
-                        } catch (error) {
-                            message = err;
-                        }
-
-                        let errorHtml = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${message = (message != null) ? message : 'An error has occured!'}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                        $('#content').append(errorHtml);
-                        console.error("AJAX error:", message);
-                    },
-                    complete: function (data) {
-                        // Hide loading spinner
-                        $('#loading').toggleClass('d-none');
-
-                        // Make content visible
-                        $('#content').removeClass('d-none');
-                        $('#content').addClass('d-flex');
-                    }
-                });
-            } catch (error) {
-
-                console.error(error);
-            }
+                weatherApp.getData(city);
+            });
         });
     </script>
 </body>

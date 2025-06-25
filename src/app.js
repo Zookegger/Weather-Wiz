@@ -19,21 +19,29 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../node_modules")));
 app.use(express.static(path.join(__dirname, "../public")));
 app.use((req, res, next) => {
     if (req.url) {
+        // Split the URL into path and query string
+        const [path, querystring] = req.url.split('?');
+
         // Step 1: Decode URL encoded input
-        req.url = decodeURIComponent(req.url);
+        let sanitizedPath = decodeURIComponent(path);
 
         // Step 2: Normalize URL
-        req.url = req.url.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        sanitizedPath = sanitizedPath.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         // Step 3: Sanitize URL
-        req.url = slugify(req.url, { 
+        sanitizedPath = slugify(sanitizedPath, { 
             lowercase: false, 
             separator: '%20',
             allowedChars: 'a-zA-Z0-9-._~!$&\'()*+,;=:@/'
         });
+
+        // Reconstruct the URL with the original query string
+        req.url = querystring ? `${sanitizedPath}?${querystring}` : sanitizedPath;
+
     } 
     next();
 });
@@ -53,9 +61,11 @@ app.get("/health", (req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(config.port, () => {
-	logger.info(`Weather app running on port ${config.port}`);
-});
-
+if (require.main === module) { // Only start the server if this file is run directly
+    app.listen(config.port, () => {
+        logger.info(`Weather app running on port ${config.port}`);
+    });
+}
+    
 // Exports modules to app
 module.exports = app;

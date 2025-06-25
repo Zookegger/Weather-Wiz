@@ -58,7 +58,7 @@ class WeatherService {
         cod:         // Response code (200 means OK)
     */
    
-    async getCurrentWeather(city, units = 'metric') {
+    async getCurrentWeatherByCity(city, units = 'metric') {
         try {
             // Check cache first
             const cached = await cacheService.get(`weather:${city}-metric:${units}`);
@@ -99,6 +99,56 @@ class WeatherService {
             
             // Cache for 10 minutes
             cacheService.set(`weather:${city}-metric:${units}`, weatherData, 600);
+            // logger.info(`Weather data fetched for ${city}`);
+            return weatherData;
+        } catch (error) {
+            logger.error(`Error fetching weather for ${city}:`, error.message);
+            throw new Error('Unable to fetch weather data');
+        }
+    }
+
+    async getCurrentWeatherByCoordinates(lat, lng, units = 'metric') {
+        try {
+            // Check cache first
+            const cached = await cacheService.get(`weather:lat:${lat}-lng:${lng}-metric:${units}`);
+            if (cached) {
+                // logger.info(`Cached hit for ${city}`);
+                return cached;
+            }
+
+            // Fetch from API
+            const response = await axios.get(`${this.baseUrl}/weather`, {
+                params: {
+                    lat: lat,
+                    lon: lng,
+                    appid: this.apiKey,
+                    units: units
+                }
+            });
+
+
+            if (response.status !== 200) {
+                throw new Error(`Failed to fetch weather data: ${response.statusText}`);
+            }
+
+            // logger.info('Data: ', response.data);
+
+            const weatherData = new Weather({
+                city: response.data.name,
+                description: response.data.weather[0].description,
+                icon: response.data.weather[0].icon,
+                temperature: response.data.main.temp,
+                feels_like: response.data.main.feels_like,
+                temp_min: response.data.main.temp_min,
+                temp_max: response.data.main.temp_max,
+                humidity: response.data.main.humidity,
+                pressure: response.data.main.pressure,
+                windDeg: response.data.wind.deg ?? 'N/A',
+                windSpeed: response.data.wind.speed,
+            });
+            
+            // Cache for 10 minutes
+            cacheService.set(`weather:lat:${lat}-lng:${lng}-metric:${units}`, weatherData, 600);
             // logger.info(`Weather data fetched for ${city}`);
             return weatherData;
         } catch (error) {

@@ -33,3 +33,6 @@ copilot-codeGeneration-instructions.md
 # Misc
 .git
 .gitignore
+
+# Test
+coverage

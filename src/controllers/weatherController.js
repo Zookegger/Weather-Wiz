@@ -4,18 +4,29 @@ const logger = require('../utils/logger');
 class WeatherController {
     async getCurrentWeather(req, res, next) {
         try {
-            const { city, units } = req.params;
+            let { city, lat, lon, units = 'metric' } = req.query;
 
-            if (!city) {
+            if (!city && (!lat || !lon)) {
                 return res.status(400).json({
                     success: false,
-                    message: `City parameter is required`
+                    message: `City name or coordinates (latitude and longitude) are required`
                 });
             }
 
-            if (units === 'undefined' || units == null) { units = 'metric' }
+            if (lat && lon) {
+                lat = parseFloat(lat);
+                lon = parseFloat(lon);
+                if (isNaN(lat) || isNaN(lon)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Latitude and longitude must be valid numbers"
+                    });
+                }
+            }
 
-            const weather = await weatherService.getCurrentWeather(city, units);
+            const weather = city 
+                ? await weatherService.getCurrentWeatherByCity(city.trim(), units) 
+                : await weatherService.getCurrentWeatherByCoordinates(lat, lon, units);
 
             res.json({
                 success: true,
